@@ -36,7 +36,7 @@ class DjangoRequestHandler(logging.StreamHandler):
 
             self.live = Live(self.uri_table, auto_refresh=False)
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         # Ignore any message from `django.server` that don't have 3 args.
         # There might be a better approach to this, not sure.
         if record.name != "django.server" or len(record.args) != 3:
