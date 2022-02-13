@@ -15,6 +15,8 @@
 
 - live-updating table of all requests while developing
 
+![demo of django-rich-logging](https://raw.githubusercontent.com/adamghill/django-rich-logging/main/django-rich-logging.gif)
+
 ## Installation
 
 `poetry add django-rich-logging` OR `pip install django-rich-logging`
