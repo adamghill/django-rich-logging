@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-rich-logging"
-version = "0.1.0"
+version = "0.1.1"
 description = "A prettier way to see Django requests while developing."
 authors = ["adamghill <adam@adamghill.com>"]
 license = "MIT"
