@@ -28,6 +28,7 @@ LOGGING = {
     },
     "loggers": {
         "django.server": {"handlers": ["django_rich_logging"], "level": "INFO"},
+        "django.request": {"level": "CRITICAL"},
     },
 }
 
@@ -37,8 +38,9 @@ LOGGING = {
 The important parts are:
 
 - listen to the `django.server` logger
-- the level must be `INFO` or below get all requests
-- there must be a handler which uses `django_rich_logging.logging.DjangoRequestHandler`
+  - the level must be `INFO` or below get all requests
+  - there must be a handler which uses `django_rich_logging.logging.DjangoRequestHandler`
+- `django.request` should be set to `CRITICAL` otherwise you will see 4xx and 5xx status codes getting logged twice
 
 ## More information about Django logging
 

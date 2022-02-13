@@ -39,6 +39,7 @@ LOGGING = {
     },
     "loggers": {
         "django.server": {"handlers": ["django_rich_logging"], "level": "INFO"},
+        "django.request": {"level": "CRITICAL"},
     },
 }
 
