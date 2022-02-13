@@ -45,6 +45,11 @@ The important parts are:
 - Information about logging `django.server`: https://docs.djangoproject.com/en/stable/ref/logging/#django-server
 - Generic information about logging with Django: https://docs.djangoproject.com/en/stable/topics/logging/
 
+## Other logging approaches
+
+- https://www.willmcgugan.com/blog/tech/post/richer-django-logging/
+- [Django logging with Rich gist](https://gist.github.com/adamchainz/efd465f267ad048b04cdd2056058c4bd)
+
 ## Inspiration and thanks
 
 - https://twitter.com/marcelpociot/status/1491771828091695111 for the initial inspiration and my reaction: https://twitter.com/adamghill/status/1491780864447033348
