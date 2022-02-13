@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+
 from django_rich_logging.logging import DjangoRequestHandler
 
 
@@ -95,7 +96,7 @@ def test_emit_404(handler, log_record):
     text = cell.renderable.renderable
 
     assert str(text) == "GET"
-    assert text.style == "orange"
+    assert text.style == "yellow"
 
 
 def test_emit_500(handler, log_record):

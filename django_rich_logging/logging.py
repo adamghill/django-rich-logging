@@ -66,8 +66,8 @@ class DjangoRequestHandler(logging.StreamHandler):
                         method_style = "yellow"
                         status_style = "yellow"
                     if status.startswith("4"):
-                        method_style = "orange"
-                        status_style = "orange"
+                        method_style = "yellow"
+                        status_style = "yellow"
                     if status.startswith("5"):
                         method_style = "red"
                         status_style = "red"
