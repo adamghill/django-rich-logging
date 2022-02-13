@@ -82,6 +82,7 @@ warn_return_any = true
 warn_unused_configs = true
 
 [tool.poe.tasks]
+r = { cmd = "example/manage.py runserver 0:8046", help = "Start dev server" }
 t = { cmd = "pytest -m 'not slow'", help = "Run tests" }
 tc = { cmd = "pytest --cov=django_rich_logging", help = "Run tests with coverage" }
 cr = { cmd = "coverage report", help = "Show coverage report" }
