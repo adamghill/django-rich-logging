@@ -46,9 +46,9 @@ class DjangoRequestHandler(logging.StreamHandler):
         try:
             request = record.args[0]
             status = record.args[1]
-            content_length = record.args[2]
+            size = ""
 
-            # Example: GET /static/unicorn/js/messageSender.js HTTP/1.1
+            # Example: GET /profile HTTP/1.1
             matches = re.match(
                 r"(GET|POST|PATCH|UPDATE|HEAD|PUT|DELETE|CONNECT|OPTIONS|TRACE)\s+([\S]+)\s+([\S]+)",
                 request,
@@ -58,25 +58,26 @@ class DjangoRequestHandler(logging.StreamHandler):
                 method = matches.group(1)
                 uri = matches.group(2)
 
-                if not settings.STATIC_URL or not uri.startswith(settings.STATIC_URL):
-                    method_style = "green"
-                    status_style = "green"
+                if (
+                    not settings.STATIC_URL or not uri.startswith(settings.STATIC_URL)
+                ) and not uri == "/favicon.ico":
+                    style = None
 
-                    if status.startswith("3"):
-                        method_style = "yellow"
-                        status_style = "yellow"
-                    if status.startswith("4"):
-                        method_style = "yellow"
-                        status_style = "yellow"
-                    if status.startswith("5"):
-                        method_style = "red"
-                        status_style = "red"
+                    if status.startswith("2"):
+                        size = record.args[2]
+                        style = "green"
+                    elif status.startswith("3"):
+                        style = "yellow"
+                    elif status.startswith("4"):
+                        style = "yellow"
+                    elif status.startswith("5"):
+                        style = "red"
 
                     self.uri_table.add_row(
-                        Text(method, style=method_style),
+                        Text(method, style=style),
                         Text(uri, style="white bold"),
-                        Text(status, style=status_style),
-                        Text(content_length),
+                        Text(status, style=style),
+                        Text(size),
                     )
                     self.live.start()
                     self.live.refresh()
