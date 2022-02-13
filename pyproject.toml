@@ -1,0 +1,98 @@
+[tool.poetry]
+name = "django-rich-logging"
+version = "0.1.0"
+description = "A prettier way to see Django requests while developing."
+authors = ["adamghill <adam@adamghill.com>"]
+license = "MIT"
+readme = "README.md"
+keywords = ["django", "python", "static", "markdown"]
+repository = "https://github.com/adamghill/django-rich-logging/"
+homepage = "https://github.com/adamghill/django-rich-logging/"
+documentation = "https://django-rich-logging.readthedocs.io/"
+
+[tool.poetry.urls]
+"Funding" = "https://github.com/sponsors/adamghill"
+
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0"
+Django = ">3.0"
+rich = "^11.2.0"
+
+# docs extras
+Sphinx = { version = "^4.3.2", optional = true }
+linkify-it-py = { version = "^1.0.3", optional = true }
+myst-parser = { version = "^0.16.1", optional = true }
+furo = { version = "^2021.11.23", optional = true }
+sphinx-copybutton = { version = "^0.4.0", optional = true }
+sphinx-autobuild = { version = "^2021.3.14", optional = true }
+toml = { version = "*", optional = true }
+
+[tool.poetry.extras]
+docs = ["Sphinx", "linkify-it-py", "myst-parser", "furo", "sphinx-copybutton", "sphinx-autobuild", "toml"]
+
+[tool.poetry.dev-dependencies]
+poethepoet = "^0.11.0"
+black = "^21.12b0"
+flake9 = "^3.8.3"
+isort = "^5.10.1"
+pytest = "^6.2.5"
+pytest-django = "^4.5.2"
+pywatchman = "^1.4.1"
+django-stubs = "^1.9.0"
+coverage = {extras = ["toml"], version = "^6.2"}
+pytest-cov = "^3.0.0"
+
+[tool.isort]
+default_section = "THIRDPARTY"
+known_first_party = ["static_site", "example"]
+known_django = "django"
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+lines_after_imports = 2
+multi_line_output = 3
+include_trailing_comma = true
+skip_glob = "*/migrations/*.py"
+profile = "black"
+
+[tool.pytest.ini_options]
+addopts = "--quiet --failed-first --reuse-db --nomigrations -p no:warnings"
+testpaths = [
+    "tests"
+]
+markers = [
+    "slow: marks tests as slow",
+]
+
+[tool.flake8]
+ignore = "E203,E266,H106,H904"
+max-line-length = 88
+
+[tool.coverage.run]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+skip_empty = true
+sort = "cover"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.poe.tasks]
+t = { cmd = "pytest -m 'not slow'", help = "Run tests" }
+tc = { cmd = "pytest --cov=django_rich_logging", help = "Run tests with coverage" }
+cr = { cmd = "coverage report", help = "Show coverage report" }
+my = { cmd = "mypy .", help = "Run mypy" }
+b = { cmd = "black . --check --quiet", help = "Run black" }
+i = { cmd = "isort . --check --quiet", help = "Run isort" }
+tm = ["b", "i", "tc", "my"]
+sa = { cmd = "sphinx-autobuild -W docs/source docs/build", help = "Sphinx autobuild" }
+sb = { cmd = "sphinx-build -W docs/source docs/build", help = "Build documentation" }
+publish = { shell = "poetry publish --build -r test && poetry publish" }
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
