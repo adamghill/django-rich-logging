@@ -21,6 +21,12 @@ class DjangoRequestHandler(logging.StreamHandler):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
+        formatter = logging.Formatter(datefmt="%H:%M:%S")
+        if "formatter" in kwargs:
+            formatter = kwargs["formatter"]
+
+        self.formatter = formatter
+
         if "console" in kwargs:
             self.console = kwargs["console"]
 
@@ -33,6 +39,7 @@ class DjangoRequestHandler(logging.StreamHandler):
             self.uri_table.add_column("URI")
             self.uri_table.add_column("Status")
             self.uri_table.add_column("Size")
+            self.uri_table.add_column("Time")
 
             self.live = Live(self.uri_table, auto_refresh=False)
 
@@ -47,6 +54,7 @@ class DjangoRequestHandler(logging.StreamHandler):
             request = record.args[0]
             status = record.args[1]
             size = ""
+            time = self.formatter.formatTime(record, datefmt=self.formatter.datefmt)
 
             # Example: GET /profile HTTP/1.1
             matches = re.match(
@@ -78,6 +86,7 @@ class DjangoRequestHandler(logging.StreamHandler):
                         Text(uri, style="white bold"),
                         Text(status, style=style),
                         Text(size),
+                        Text(time),
                     )
                     self.live.start()
                     self.live.refresh()
