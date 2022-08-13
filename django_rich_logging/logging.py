@@ -1,12 +1,11 @@
 import logging
-import re
-
-from django.conf import settings
 
 from rich.console import Console
 from rich.live import Live
 from rich.table import Table
 from rich.text import Text
+
+from .objects import Request
 
 
 class DjangoRequestHandler(logging.StreamHandler):
@@ -22,6 +21,7 @@ class DjangoRequestHandler(logging.StreamHandler):
         super().__init__()
 
         formatter = logging.Formatter(datefmt="%H:%M:%S")
+
         if "formatter" in kwargs:
             formatter = kwargs["formatter"]
 
@@ -35,6 +35,8 @@ class DjangoRequestHandler(logging.StreamHandler):
 
         if self.live is None:
             self.uri_table = Table()
+
+            # TODO: Add columns based on config
             self.uri_table.add_column("Method")
             self.uri_table.add_column("URI")
             self.uri_table.add_column("Status")
@@ -44,54 +46,28 @@ class DjangoRequestHandler(logging.StreamHandler):
             self.live = Live(self.uri_table, auto_refresh=False)
 
     def emit(self, record: logging.LogRecord) -> None:
-        # Ignore any message from `django.server` that don't have 3 args.
-        # There might be a better approach to this, not sure.
-        if record.name != "django.server" or len(record.args) != 3:
-            super().emit(record)
-            return
-
         try:
-            request = record.args[0]
-            status = record.args[1]
-            size = ""
-            time = self.formatter.formatTime(record, datefmt=self.formatter.datefmt)
+            request = Request(record)
 
-            # Example: GET /profile HTTP/1.1
-            matches = re.match(
-                r"(GET|POST|PATCH|UPDATE|HEAD|PUT|DELETE|CONNECT|OPTIONS|TRACE)\s+([\S]+)\s+([\S]+)",
-                request,
-            )
+            if request.is_valid:
+                if not request.is_loggable:
+                    return
 
-            if matches:
-                method = matches.group(1)
-                uri = matches.group(2)
+                time = self.formatter.formatTime(record, datefmt=self.formatter.datefmt)
 
-                if (
-                    not settings.STATIC_URL or not uri.startswith(settings.STATIC_URL)
-                ) and not uri == "/favicon.ico":
-                    style = None
+                self.uri_table.add_row(
+                    Text(request.method, style=request.style),
+                    Text(request.uri, style="white bold"),
+                    Text(request.status, style=request.style),
+                    Text(request.size),
+                    Text(time),
+                )
+                self.live.start()
+                self.live.refresh()
 
-                    if status.startswith("2"):
-                        size = record.args[2]
-                        style = "green"
-                    elif status.startswith("3"):
-                        style = "yellow"
-                    elif status.startswith("4"):
-                        style = "yellow"
-                    elif status.startswith("5"):
-                        style = "red"
-
-                    self.uri_table.add_row(
-                        Text(method, style=style),
-                        Text(uri, style="white bold"),
-                        Text(status, style=style),
-                        Text(size),
-                        Text(time),
-                    )
-                    self.live.start()
-                    self.live.refresh()
-
-            self.flush()
+                self.flush()
+            else:
+                super().emit(record)
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception as ex:

@@ -113,6 +113,14 @@ def test_emit_500(handler, log_record):
     assert text.style == "red"
 
 
+def test_emit_skip_favicon(handler, log_record):
+    log_record.args = ("GET /favicon.ico HTTP/1.1", "200", "1234")
+
+    handler.emit(log_record)
+
+    assert len(handler.uri_table.rows) == 0
+
+
 def test_emit_no_matches(handler, log_record):
     log_record.args = ("this will not match the regex", "500", "1234")
 
@@ -128,3 +136,21 @@ def test_emit_static_url(settings, handler, log_record):
     handler.emit(log_record)
 
     assert len(handler.uri_table.rows) == 0
+
+
+def test_emit_static_url_setting_is_different(settings, handler, log_record):
+    settings.STATIC_URL = "/static2/"
+    log_record.args = ("GET /static/vue.js HTTP/1.1", "200", "1234")
+
+    handler.emit(log_record)
+
+    assert len(handler.uri_table.rows) == 1
+
+
+def test_emit_missing_static_setting(settings, handler, log_record):
+    settings.STATIC_URL = None
+    log_record.args = ("GET /static/vue.js HTTP/1.1", "200", "1234")
+
+    handler.emit(log_record)
+
+    assert len(handler.uri_table.rows) == 1
