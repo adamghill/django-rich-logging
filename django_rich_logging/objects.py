@@ -1,6 +1,7 @@
 import logging
 import re
 from dataclasses import dataclass
+from datetime import datetime
 
 from django.conf import settings
 
@@ -11,16 +12,18 @@ REQUEST_REGEX = (
 
 
 @dataclass
-class Request:
+class RequestRecord:
     """
-    Handles parsing the `LogRecord` into a `Request` object which has the correct data.
+    Handles parsing the `logging.LogRecord` into a `RequestRecord` object.
     """
 
     method: str
-    uri: str
-    status: str
+    path: str
+    status_code: str
     size: str
-    style: str = None
+    created: datetime
+    record: logging.LogRecord
+    text_style: str = None
     is_valid: bool = False
 
     def __init__(self, record: logging.LogRecord):
@@ -28,6 +31,9 @@ class Request:
         # TODO: Find a less hacky way to deal with this.
         if record.name != "django.server" or len(record.args) != 3:
             return
+
+        self.record = record
+        self.created = datetime.fromtimestamp(record.created)
 
         unparsed_request = record.args[0]
 
@@ -38,29 +44,43 @@ class Request:
             self.is_valid = True
 
             self.method = matches.group(1)
-            self.uri = matches.group(2)
+            self.path = matches.group(2)
 
-            self.status = record.args[1]
+            self.status_code = record.args[1]
             self.size = record.args[2]
 
-            self.style = self.get_style()
+            self.text_style = self.get_text_style()
 
-    def get_style(self):
-        if self.status.startswith("2"):
+    def get_text_style(self):
+        if self.status_code.startswith("2"):
             return "green"
-        elif self.status.startswith("3"):
+        elif self.status_code.startswith("3"):
             return "yellow"
-        elif self.status.startswith("4"):
+        elif self.status_code.startswith("4"):
             return "yellow"
-        elif self.status.startswith("5"):
+        elif self.status_code.startswith("5"):
             return "red"
 
     @property
     def is_loggable(self):
-        if settings.STATIC_URL and self.uri.startswith(settings.STATIC_URL):
+        if settings.STATIC_URL and self.path.startswith(settings.STATIC_URL):
             return False
 
-        if self.uri == "/favicon.ico":
+        if self.path == "/favicon.ico":
             return False
 
         return True
+
+    def get_dict(self, date_format: str = None):
+        created_str = str(self.created)
+
+        if date_format:
+            created_str = self.created.strftime(date_format)
+
+        return {
+            "created": created_str,
+            "method": self.method,
+            "path": self.path,
+            "status_code": self.status_code,
+            "size": self.size,
+        }

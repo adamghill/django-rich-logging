@@ -129,39 +129,31 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "console": {
-            "format": "[%(asctime)s][%(levelname)s] %(name)s "
-            "%(filename)s:%(funcName)s:%(lineno)d | %(message)s",
-            "datefmt": "%H:%M:%S",
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         },
-        "verbose": {
-            "format": (
-                "%(asctime)s [%(process)d] [%(levelname)s] "
-                + "pathname=%(pathname)s lineno=%(lineno)s "
-                + "funcname=%(funcName)s %(message)s"
-            ),
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-        "simple": {"format": "%(levelname)s %(message)s"},
-        "rich": {"datefmt": "[%%]"},
     },
     "handlers": {
-        "null": {"level": "DEBUG", "class": "logging.NullHandler"},
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
         "django_rich_logging": {
             "class": "django_rich_logging.logging.DjangoRequestHandler",
-            # "filters": ["require_debug_true"],
-            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "columns": [
+                {"header": "Method", "format": "[white]{method}", "style": "{"},
+                {"header": "Path", "format": "[white bold]{path}", "style": "{"},
+                {"header": "Status", "format": "{status_code}", "style": "{"},
+                {"header": "Size", "format": "[white]{size}", "style": "{"},
+                {
+                    "header": "Time",
+                    "format": "[white]{created}",
+                    "style": "{",
+                    "datefmt": "%H:%M:%S",
+                },
+            ],
         },
     },
     "loggers": {
-        "": {"handlers": ["console"], "level": "INFO", "propagate": False},
-        "django.server": {"handlers": ["django_rich_logging"], "level": "INFO"},
+        "django.server": {"handlers": ["django_rich_logging"]},
         "django.request": {"level": "CRITICAL"},
     },
 }

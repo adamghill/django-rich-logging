@@ -23,24 +23,22 @@ def handler():
     handler = DjangoRequestHandler()
 
     assert handler.live is not None
-    assert handler.uri_table is not None
-    assert len(handler.uri_table.rows) == 0
+    assert handler.table is not None
+    assert len(handler.table.rows) == 0
 
     return handler
 
 
 def _get_cell(handler, column_idx, row_idx):
     return list(
-        handler.uri_table._get_cells(
-            handler.console, 0, handler.uri_table.columns[column_idx]
-        )
+        handler.table._get_cells(handler.console, 0, handler.table.columns[column_idx])
     )[row_idx]
 
 
 def test_emit(handler, log_record):
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
 
 
 def test_emit_non_django_server_log_record(handler, log_record):
@@ -48,7 +46,7 @@ def test_emit_non_django_server_log_record(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 0
+    assert len(handler.table.rows) == 0
 
 
 def test_emit_log_record_with_not_3_args(handler, log_record):
@@ -56,13 +54,13 @@ def test_emit_log_record_with_not_3_args(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 0
+    assert len(handler.table.rows) == 0
 
 
 def test_emit_200(handler, log_record):
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
 
     cell = _get_cell(handler, column_idx=0, row_idx=1)
     text = cell.renderable.renderable
@@ -76,7 +74,7 @@ def test_emit_301(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
 
     cell = _get_cell(handler, column_idx=0, row_idx=1)
     text = cell.renderable.renderable
@@ -90,7 +88,7 @@ def test_emit_404(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
 
     cell = _get_cell(handler, column_idx=0, row_idx=1)
     text = cell.renderable.renderable
@@ -104,7 +102,7 @@ def test_emit_500(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
 
     cell = _get_cell(handler, column_idx=0, row_idx=1)
     text = cell.renderable.renderable
@@ -118,7 +116,7 @@ def test_emit_skip_favicon(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 0
+    assert len(handler.table.rows) == 0
 
 
 def test_emit_no_matches(handler, log_record):
@@ -126,7 +124,7 @@ def test_emit_no_matches(handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 0
+    assert len(handler.table.rows) == 0
 
 
 def test_emit_static_url(settings, handler, log_record):
@@ -135,7 +133,7 @@ def test_emit_static_url(settings, handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 0
+    assert len(handler.table.rows) == 0
 
 
 def test_emit_static_url_setting_is_different(settings, handler, log_record):
@@ -144,7 +142,7 @@ def test_emit_static_url_setting_is_different(settings, handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
 
 
 def test_emit_missing_static_setting(settings, handler, log_record):
@@ -153,4 +151,4 @@ def test_emit_missing_static_setting(settings, handler, log_record):
 
     handler.emit(log_record)
 
-    assert len(handler.uri_table.rows) == 1
+    assert len(handler.table.rows) == 1
