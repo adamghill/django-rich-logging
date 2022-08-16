@@ -86,16 +86,16 @@ class DjangoRequestHandler(logging.StreamHandler):
         style = column.get("style", "%")
         date_format = column.get("datefmt")
 
+        request_record_data = request_record.get_dict(date_format=date_format)
+
         if style == "%":
-            return format % request_record.get_dict(date_format=date_format)
+            return format % request_record_data
         elif style == "{":
-            return format.format(**request_record.get_dict(date_format=date_format))
+            return format.format(**request_record_data)
         elif style == "$":
             template = Template(format)
 
-            return template.substitute(
-                **request_record.get_dict(date_format=date_format)
-            )
+            return template.substitute(**request_record_data)
         else:
             raise Exception(f"Unknown style: {style}")
 
