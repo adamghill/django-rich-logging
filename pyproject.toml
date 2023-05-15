@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-rich-logging"
-version = "0.2.0"
+version = "0.3.0"
 description = "A prettier way to see Django requests while developing."
 authors = ["adamghill <adam@adamghill.com>"]
 license = "MIT"
@@ -16,7 +16,7 @@ documentation = "https://django-rich-logging.readthedocs.io/"
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
 Django = ">3.0"
-rich = "^11.2.0"
+rich = ">11.2.0"
 
 # docs extras
 Sphinx = { version = "^4.3.2", optional = true }
